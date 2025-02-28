@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "BidBlitz - Welcome";
+}
+
+<div class="main-content">
+    <div class="welcome-container">
+        <header>
+            <h1>Welcome to <span class="font">BidBlitz</span></h1>
+            <p>Your gateway to thrilling auctions and unbeatable deals!</p>
+        </header>
+        <div class="cta-buttons">
+            <a asp-controller="Listings" asp-action="Index" class="btn explore">Explore Auctions</a>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn signup">Sign Up Now</a>
+        </div>
+    </div>
+</div>

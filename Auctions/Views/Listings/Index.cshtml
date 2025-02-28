@@ -1,0 +1,65 @@
+﻿@model PaginatedList<Listing>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="text-dark">Active Listings</h1>
+<div class="d-flex align-items-center justify-content-end my-3">
+    <a class="btn btn-primary" asp-action="Create">Create</a>
+</div>
+@if (TempData["Message"] is not null)
+{
+    <div class="alert alert-success" id="message">
+        @TempData["Message"]
+    </div>
+}
+@foreach(var listing in Model)
+{
+    <div class="container main my-3 rounded">
+      
+        <div class="row">
+            <div class="col col-xs-6 col-lg-5 d-flex align-items-center justify-content-center mt-3">
+                <img src="~/images/@listing.ImagePath" class="listing-img rounded"  />
+            </div>
+            <div class="col col-xs-6 col-lg-7 d-flex align-items-center justify-content-between">
+                <div>
+                    <a asp-action="Details" asp-route-id="@listing.Id" class="fs-5 fw-bold">@listing.Title</a>
+                    <p class="lead my-2">@listing.Description</p>
+                    <h5>Bid : <span class="lead">@listing.Price.ToString("N2")$</span></h5>
+                    <h5>Listed By : <span class="lead">@listing.User?.Email.Split("@")[0]</span></h5>
+                </div>
+
+            </div>
+        </div>
+    
+
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert-warning mt-5 p-5 text-center">
+        <h3>There is No Active Listings</h3>
+    </div>
+}
+
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="d-flex justify-content-center">
+    <a asp-action="Index"
+    asp-route-pageNumber="@(Model.PageIndex -1)"
+    class="btn btn-default @prevDisabled">
+       Previous
+    </a>
+    <div class="btn" style="cursor:default"> Page @Model.PageIndex of @Model.TotalPages</div>
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex +1)"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>
+</div>

@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.main{
+    background-color: rgba(138,129,133,0.6);
+    margin-top: 50px;
+    padding: 50px;
+    height: 400px;
+}
+
+.navbar-brand {
+    font-family: "Anton", serif;
+    font-weight: bolder;
+    font-style: italic;
+
+}
+
+
+.nav-item {
+    font-family: "Anton", serif;
+    font-weight: 400;
+    font-style: oblique;
+}
+
+.main .listing-img {
+    width: 225px;
+    height: 225px
+}
+
+.main .details-img {
+    width: 225px;
+    height: 225px
+}
+
+.nav-item a:hover {
+    color: #0DCAF0 !important;
+}

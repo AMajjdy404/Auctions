@@ -1,0 +1,131 @@
+﻿@model Auctions.Models.Listing
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> userManager
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mb-5">
+    <h1 class="my-5"><span class="text-info">@Model.Title</span> Details</h1>
+
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        if (Model.IsSold == true)
+        {
+            foreach (var bid in Model.Bids)
+            {
+                if (bid.Price == Model.Price)
+                {
+                    if (bid.IdentityUserId == userManager.GetUserId(User))
+                    {
+                        <h3 class="text-success mt-3">Congratulations You Are The Winner!!</h3>
+                    }
+                    else if (Model.User.Id == userManager.GetUserId(User))
+                    {
+                        <h3 class="mt-3"><span class="text-info">@bid.User.UserName.Split("@")[0]</span> is The Winner!!</h3>
+                    }
+                    else
+                    {
+                        <h3 class="text-danger mt-3">Bidding is Closed!</h3>
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    <div class="container main my-3 rounded">
+
+        <div class="row">
+            <div class="col col-xs-6 col-lg-5 d-flex align-items-center justify-content-center mt-3">
+                <img src="~/images/@Model.ImagePath" class="details-img rounded" />
+            </div>
+            <div class="col col-xs-6 col-lg-7 ">
+                <div>
+                    <p class="lead my-2">@Model.Description</p>
+                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-action="AddBid" method="post">
+                        Bid: $ <input class="form-control w-25 my-3" type="number" min="@Model.Price" name="Price" step="1" placeholder="@Model.Price.ToString("N2")" />
+                        <input class="form-control" type="hidden" name="UserManagerId" value="@userManager.GetUserId(User)" />
+                        <input class="form-control" type="hidden" name="ListingId" value="@Model.Id" />
+                        <input type="submit" class="btn btn-primary" value="Add Bid" />
+                    </form>
+
+                    <h6 class="my-3">Bids have Submitted : @Model.Bids?.Count</h6>
+                    <br />
+                    @if (userManager.GetUserId(User) == Model.User.Id)
+                    {
+                        foreach (var bid in Model.Bids)
+                        {
+                            <ul>
+                                <li>Bidder Name : @bid.User.UserName, Bidding Price : @bid.Price.ToString("N2") </li>
+                            </ul>
+                        }
+                    }
+                }
+                else
+                {
+                    <div>
+                        Bid: $ <input class="form-control my-3 w-25" type="number" min="@Model.Price" name="Price" step="1" placeholder="@Model.Price.ToString("N2")" />
+                        <input type="submit" class="disabled btn btn-primary" value="Add Bid" />
+                    </div>
+
+                    <h6 class="my-3">Bids have Submitted : @Model.Bids?.Count</h6>
+                }
+
+                <h5>Listed By : <span class="fw-bold text-primary">@Model.User?.Email.Split("@")[0]</span></h5>
+            </div>
+        </div>
+        <br>
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (userManager.GetUserId(User) == Model.User.Id)
+            {
+                if (Model.IsSold == false)
+                {
+                    <div class="d-flex align-items-center justify-content-end">
+                        <a asp-action="CloseBidding" class="btn btn-danger mt-5 my-3">Close Bidding</a>
+                    </div>
+                }
+            }
+        }
+
+        <br>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="container mb-5">
+                <h4 class="text-info my-3">Add Comment</h4>
+                <form method="post" asp-action="AddComment">
+                    <textarea name="Content" class="w-50 form-control my-3"></textarea>
+                    <input class="form-control" type="hidden" name="UserManagerId" value="@userManager.GetUserId(User)" />
+                    <input class="form-control" type="hidden" name="ListingId" value="@Model.Id" />
+                    <input class="btn btn-primary mb-5" type="submit" value="Add Comment" />
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="container mb-5">
+                <h6 class="text-info my-3">Add Comment</h6>
+                <textarea class="w-50 my-3 form-control"></textarea>
+                <input disabled class="btn btn-primary" type="submit" value="Add Comment" />
+            </div>
+        }
+
+
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="card mb-5" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">@comment.User.UserName</h5>
+                    <p class="card-text">@comment.Content</p>
+                </div>
+            </div>
+        }
+</div>
