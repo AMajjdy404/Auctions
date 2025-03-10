@@ -1,0 +1,56 @@
+﻿@model PaginatedList<Bid>
+
+@{
+    ViewData["Title"] = "My Bids";
+}
+
+<h1 class="text-primary">My Bids</h1>
+@foreach (var bid in Model)
+{
+    <div class="container main my-3 rounded">
+
+        <div class="row">
+            <div class="col col-xs-6 col-lg-5 d-flex align-items-center justify-content-center mt-3">
+                <img src="~/images/@bid.Listing.ImagePath" class="listing-img rounded" />
+            </div>
+            <div class="col col-xs-6 col-lg-7 d-flex align-items-center justify-content-between">
+                <div>
+                    <a asp-action="Details" asp-route-id="@bid.Listing.Id" class="fs-5 fw-bold">@bid.Listing.Title</a>
+                    <p class="lead my-2">@bid.Listing.Description</p>
+                    <h5>Bid : <span class="lead">@bid.Listing.Price.ToString("N2")$</span></h5>
+                    <h5>Listed By : <span class="lead">@bid.Listing.User?.Email.Split("@")[0]</span></h5>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert-warning mt-5 p-5 text-center">
+        <h3>There is No Bids</h3>
+    </div>
+}
+
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="d-flex justify-content-center">
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex -1)"
+       class="btn btn-default @prevDisabled">
+        Previous
+    </a>
+    <div class="btn" style="cursor:default"> Page @Model.PageIndex of @Model.TotalPages</div>
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex +1)"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>
+</div>

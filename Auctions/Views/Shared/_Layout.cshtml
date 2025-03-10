@@ -30,7 +30,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item mx-3">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="Index"><i class="fa-solid fa-circle-plus fs-5 mx-1"></i>Create Listing</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="Index"><i class="fa-solid fa-chart-line fs-5 mx-1"></i>Active Listing</a>
                             </li>
                             <li class="nav-item mx-3">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="MyListings"><i class="fa-solid fa-newspaper fs-5 mx-1"></i>My Listings</a>
@@ -38,13 +38,20 @@
                             <li class="nav-item mx-3">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="MyBids"><i class="fa-solid fa-coins fs-5 mx-1"></i>My Bids</a>
                             </li>
+                            @if (ViewData["Title"] == "BidBlitz - Welcome")
+                            {
 
-                            <li class="mx-5">
-                                <form class="d-flex" role="search">
-                                    <input class="form-control me-2" type="search" name="searchValue" placeholder="Search" aria-label="Search">
-                                    <button class="btn btn-outline-info" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                                </form>
-                            </li>
+                            }
+                            else
+                            {
+                                <li class="mx-5">
+                                    <form class="d-flex" role="search">
+                                        <input class="form-control me-2" type="search" name="searchValue" placeholder="Search" aria-label="Search">
+                                        <button class="btn btn-outline-info" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    </form>
+                                </li>
+                            }
+
                         }
                     </ul>
                     <partial name="_LoginPartial" />

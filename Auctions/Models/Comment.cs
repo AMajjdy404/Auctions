@@ -15,5 +15,7 @@ namespace Auctions.Models
         public int? ListingId { get; set; }
         [ForeignKey(nameof(ListingId))]
         public Listing? Listing { get; set; } = null!;
+
+        public DateTime CommentDate { get; set; } = DateTime.Now;
     }
 }

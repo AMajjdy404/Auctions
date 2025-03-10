@@ -10,16 +10,25 @@ using Auctions.Models;
 using Auctions.Data.Services;
 using Auctions.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Auctions.Controllers
 {
     public class ListingsController : Controller
     {
         private readonly IListingService _listingService;
+        private readonly IRepositoryService<Bid> _bidRepo;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IRepositoryService<Comment> _commentRepo;
 
-        public ListingsController(IListingService listingService)
+        public ListingsController(IListingService listingService,IRepositoryService<Bid> bidRepo,
+            UserManager<IdentityUser> userManager, IRepositoryService<Comment> commentRepo)
         {
             _listingService = listingService;
+            _bidRepo = bidRepo;
+            _userManager = userManager;
+            _commentRepo = commentRepo;
         }
 
         // GET: Listings
@@ -33,7 +42,27 @@ namespace Auctions.Controllers
                 return View(await PaginatedList<Listing>.CreateAsync(listings.Where(s => s.IsSold == false).AsNoTracking(), pageNumber ?? 1, pageSize));
             }
 
-            return View(await PaginatedList<Listing>.CreateAsync(listings.Where(s=>s.IsSold == false).AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Listing>.CreateAsync(listings.Where(s => s.IsSold == false).AsNoTracking(), pageNumber ?? 1, pageSize));
+        }
+
+        // GET: MyListings
+        public async Task<IActionResult> MyListings(int? pageNumber)
+        {
+            var listings = _listingService.GetAll();
+            int pageSize = 3;
+           
+            return View(nameof(Index),await PaginatedList<Listing>.CreateAsync(listings
+                   .Where(s => s.IdentityUserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).AsNoTracking(), pageNumber ?? 1, pageSize));
+        }
+
+        // GET: MyBids
+        public async Task<IActionResult> MyBids(int? pageNumber)
+        {
+            var bids = _bidRepo.GetAll();
+            int pageSize = 3;
+
+            return View(await PaginatedList<Bid>.CreateAsync(bids
+                   .Where(s => s.IdentityUserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Listings/Details/5
@@ -85,6 +114,65 @@ namespace Auctions.Controllers
            return View(listingVM);
             
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddBid(BidViewModel bidVM)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(nameof(Details), bidVM);
+            }
+            
+            bidVM.IdentityUserId = _userManager.GetUserId(User);
+
+            var bid = new Bid()
+            {
+                IdentityUserId = bidVM.IdentityUserId,
+                Price = bidVM.Price,
+                ListingId = bidVM.ListingId,
+            };
+
+            await _bidRepo.AddAsync(bid);
+            await _bidRepo.CompleteAsync();
+
+            var listing = await _listingService.GetByIdAsync(bid.ListingId);
+            listing.Price = bid.Price;
+            var result = await _listingService.CompleteAsync();
+
+            return View(nameof(Details), listing);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CloseBidding(int id)
+        {
+            var listing = await _listingService.GetByIdAsync(id);
+            listing.IsSold = true;
+            await _listingService.CompleteAsync();
+            return RedirectToAction(nameof(Details),listing);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddComment(CommentViewModel commentVM)
+        {
+            commentVM.IdentityUserId = _userManager.GetUserId(User);
+            if (!ModelState.IsValid)
+            {
+                return View(nameof(Details), commentVM);
+            }
+
+            var comment = new Comment()
+            {
+                Content = commentVM.Content,
+                ListingId= commentVM.ListingId,
+                IdentityUserId = commentVM.IdentityUserId
+            };
+
+            await _commentRepo.AddAsync(comment);
+            await _commentRepo.CompleteAsync();
+            var listing = await _listingService.GetByIdAsync(commentVM.ListingId);
+
+            return View(nameof(Details), listing);
+        }
+
 
         //// GET: Listings/Edit/5
         //public async Task<IActionResult> Edit(int? id)

@@ -22,7 +22,7 @@ namespace Auctions
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IListingService, ListingService>();
-            
+            builder.Services.AddScoped(typeof(IRepositoryService<>), typeof(RepositoryService<>));
 
             var app = builder.Build();
 
@@ -48,7 +48,7 @@ namespace Auctions
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Listings}/{action=Index}");
+                pattern: "{controller=Home}/{action=Index}");
             app.MapRazorPages();
 
             app.Run();
